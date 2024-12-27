@@ -27,6 +27,12 @@ fun NavigationGraph(
     favoritesViewModel: FavoritesViewModel = viewModel()
 ) {
     val uiState by productsViewModel.uiState.collectAsState()
+    val baseModifier = Modifier.padding(
+        top = innerPadding.calculateTopPadding(),
+        bottom = innerPadding.calculateBottomPadding(),
+        start = 24.dp,
+        end = 24.dp
+    )
     NavHost(
         navController,
         startDestination = if (uiState.loggedIn) BottomBar.Products.route else "login",
@@ -45,12 +51,7 @@ fun NavigationGraph(
 
         composable(route = BottomBar.Products.route) {
             ProductsScreen(
-                modifier = Modifier.padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = innerPadding.calculateBottomPadding(),
-                    start = 24.dp,
-                    end = 24.dp
-                ),
+                modifier = baseModifier,
                 productsViewModel = productsViewModel,
                 navigateOnProductClick = { productId ->
                     productsViewModel.initProductScreenUi(productId)
@@ -62,12 +63,7 @@ fun NavigationGraph(
         composable(route = BottomBar.Favorites.route) {
             favoritesViewModel.updateFavoriteProductsState()
             FavoritesScreen(
-                modifier = Modifier.padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = innerPadding.calculateBottomPadding(),
-                    start = 24.dp,
-                    end = 24.dp
-                ),
+                modifier = baseModifier,
                 favoriteProductsViewModel = favoritesViewModel,
                 navigateOnCardClick = { productId ->
                     productsViewModel.initProductScreenUi(productId)
@@ -94,12 +90,7 @@ fun NavigationGraph(
 
         composable(route = BottomBar.Settings.route) {
             SettingsScreen(
-                modifier = Modifier.padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = innerPadding.calculateBottomPadding(),
-                    start = 24.dp,
-                    end = 24.dp
-                ),
+                modifier = baseModifier,
                 productsViewModel = productsViewModel,
                 onLogout = {
                     navController.navigate("login")
