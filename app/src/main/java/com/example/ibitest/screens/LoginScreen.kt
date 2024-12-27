@@ -100,7 +100,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            if (username == "1" && password == "1") {
+            if (username == "vesko" && password == "12345") {
                 onSuccessfulLogin()
             }
         }) {
