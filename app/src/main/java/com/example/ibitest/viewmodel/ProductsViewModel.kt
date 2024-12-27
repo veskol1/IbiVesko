@@ -110,8 +110,14 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun initProductScreenUi(productId: String) {
-        val foundProduct = productsState.value.productsList.find { it.id == productId }!!
         viewModelScope.launch(Dispatchers.IO) {
+            val foundProduct = if (productsState.value.productsList.isNotEmpty()) {
+                productsState.value.productsList.find { it.id == productId }!!
+            } else {
+                val favoriteProducts = localRepository.gelAllFavoriteProducts()
+                favoriteProducts.find { it.id == productId }!!
+            }
+
             _productState.update {
                 it.copy(
                     product = foundProduct,
