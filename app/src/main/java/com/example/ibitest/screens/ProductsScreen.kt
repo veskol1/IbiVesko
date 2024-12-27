@@ -26,7 +26,7 @@ fun ProductsScreen(
     bottomBarVisible: (Boolean) -> Unit,
     navigateOnProductClick: (productId: String) -> Unit = {}
 ) {
-    val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by productsViewModel.productsState.collectAsStateWithLifecycle()
 
     when (uiState.status) {
         Status.SUCCESS -> {

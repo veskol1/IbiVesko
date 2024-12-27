@@ -7,6 +7,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -31,7 +32,7 @@ fun RowScope.Item(item: BottomBar, navController: NavController) {
         icon = {
             Icon(item.selectedIcon.takeIf { selected } ?: item.icon , contentDescription = null)
         },
-        label = { Text(item.name) },
+        label = { Text(stringResource(item.name)) },
         selected = selected,
         enabled = true,
         onClick = {

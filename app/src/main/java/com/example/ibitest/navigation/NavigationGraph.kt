@@ -82,7 +82,13 @@ fun NavigationGraph(
 
         composable(route = BottomBar.Settings.route) {
             SettingsScreen(
-                modifier = Modifier
+                modifier = Modifier.padding(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = 24.dp,
+                    end = 24.dp
+                ),
+                productsViewModel = productsViewModel
             )
         }
     }

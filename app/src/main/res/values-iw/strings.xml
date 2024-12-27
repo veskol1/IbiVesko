@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">אפליקציית IBI</string>
+    <string name="language_english">אנגלית</string>
+    <string name="language_label">בחירת שפה</string>
+    <string name="language_hebrew">עברית</string>
+    <string name="theme_label">ערכת נושא</string>
+    <string name="brand_label">"מותג: "</string>
+    <string name="price_label">"מחיר: "</string>
+    <string name="products_label">מוצרים</string>
+    <string name="favorites_label">מועדפים</string>
+    <string name="settings_label">הגדרות</string>
+    <string name="logout_label">התקנתקות</string>
+
+</resources>

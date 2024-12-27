@@ -53,20 +53,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun productRemoteRepositoryProvide(apiService: ApiService, dataStore: DataStore<Preferences>): ProductRepository {
-        return ProductRepository(apiService, dataStore)
+    fun productRemoteRepositoryProvide(apiService: ApiService): ProductRepository {
+        return ProductRepository(apiService)
     }
 
     @Provides
     @Singleton
-    fun productLocalRepositoryProvide(productDao: ProductDao): LocalProductRepository {
-        return LocalProductRepository(productDao)
+    fun productLocalRepositoryProvide(productDao: ProductDao, dataStore: DataStore<Preferences>): LocalProductRepository {
+        return LocalProductRepository(productDao, dataStore)
     }
 
     @Singleton
     @Provides
     fun provideDataStore(@ApplicationContext appContext: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create (produceFile = { appContext.preferencesDataStoreFile(name = "cache_data_time") })
+        return PreferenceDataStoreFactory.create (produceFile = { appContext.preferencesDataStoreFile(name = "settings_preferences") })
     }
 
 //    @Provides

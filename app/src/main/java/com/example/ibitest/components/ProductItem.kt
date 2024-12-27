@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.example.ibitest.R
 import com.example.ibitest.model.Product
 import com.example.ibitest.utils.mockDealsList
 
@@ -81,7 +83,7 @@ fun ProductItem(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Brand: ")
+                            append(stringResource(R.string.brand_label))
                         }
                         append(product.brand)
                     },
@@ -93,7 +95,7 @@ fun ProductItem(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Price: ")
+                            append(stringResource(R.string.price_label))
                         }
                         append(product.price)
                     },

@@ -1,5 +1,6 @@
 package com.example.ibitest.viewmodel
 
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibitest.model.Product
@@ -23,8 +24,8 @@ class ProductsViewModel @Inject constructor(
     //private val connectivityManager: NetworkConnectivityManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProductsUiState())
-    var uiState = _uiState.asStateFlow()
+    private val _productsState = MutableStateFlow(ProductsUiState())
+    var productsState = _productsState.asStateFlow()
 
     private val _productUiState = MutableStateFlow(ProductUiState())
     var productUiState = _productUiState.asStateFlow()
@@ -32,10 +33,36 @@ class ProductsViewModel @Inject constructor(
     private val _clearCache = MutableStateFlow(false)
     var clearCache = _clearCache.asStateFlow()
 
+    private val _uiState = MutableStateFlow(UiState())
+    var uiState = _uiState.asStateFlow()
+
     init {
+        initUi()
         getRemoteProducts()
         checkIfNeedToClearImageCache()
         //handleInternetConnectionState()
+    }
+
+    private fun initUi() {
+        viewModelScope.launch {
+            localRepository.getThemeFromDataStore.take(1).collect { themeDark ->
+                _uiState.update {
+                    it.copy(
+                        themeDark = themeDark
+                    )
+                }
+            }
+
+            localRepository.getLanguageFromDataStore.take(1).collect { language ->
+                val layoutDirection = LayoutDirection.Ltr.takeIf {  language == "en" } ?: LayoutDirection.Rtl
+                _uiState.update {
+                    it.copy(
+                        language = language,
+                        layoutDirection = layoutDirection
+                    )
+                }
+            }
+        }
     }
 
     private fun getRemoteProducts(resetData: Boolean = false) {
@@ -43,20 +70,20 @@ class ProductsViewModel @Inject constructor(
             val productsList = remoteProductsRepository.fetchProducts(resetData = resetData)
 
             if (productsList.isNotEmpty()) {
-                _uiState.update {
+                _productsState.update {
                     it.copy(
                         status = Status.SUCCESS,
                         productsList = productsList
                     )
                 }
             } else {
-                _uiState.value = ProductsUiState(status = Status.ERROR)
+                _productsState.value = ProductsUiState(status = Status.ERROR)
             }
         }
     }
 
     fun loadMoreProducts() {
-        _uiState.update {
+        _productsState.update {
             it.copy(
                 skip = it.skip + 10,
                 isLoadingMore = true
@@ -65,10 +92,10 @@ class ProductsViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             val newProductsList = remoteProductsRepository.fetchProducts(
-                skip = uiState.value.skip,
+                skip = productsState.value.skip,
             )
 
-            _uiState.update {
+            _productsState.update {
                 it.copy(
                     status = Status.SUCCESS,
                     productsList = newProductsList,
@@ -79,7 +106,7 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun initProductScreenUi(productId: String) {
-        val foundProduct = uiState.value.productsList.find { it.id == productId }!!
+        val foundProduct = productsState.value.productsList.find { it.id == productId }!!
         viewModelScope.launch(Dispatchers.IO) {
             _productUiState.update {
                 it.copy(
@@ -109,19 +136,48 @@ class ProductsViewModel @Inject constructor(
 
     private fun checkIfNeedToClearImageCache() {
         viewModelScope.launch {
-            remoteProductsRepository.savedCacheTime.take(1).collect { savedTime ->
+            localRepository.savedCacheTime.take(1).collect { savedTime ->
                 val currentTime = System.currentTimeMillis()
                 val difference = currentTime - savedTime
 
                 if (difference > 0) { //cache time is reached
                     _clearCache.value = true
-                    remoteProductsRepository.saveCacheTimeToDataStore(currentTime + TIME_TO_CLEAR_IMAGE_CACHE)
+                    localRepository.saveCacheTimeToDataStore(currentTime + TIME_TO_CLEAR_IMAGE_CACHE)
 
                 } else if (savedTime == 0L) { // init cache first time
-                    remoteProductsRepository.saveCacheTimeToDataStore(currentTime + TIME_TO_CLEAR_IMAGE_CACHE)
+                    localRepository.saveCacheTimeToDataStore(currentTime + TIME_TO_CLEAR_IMAGE_CACHE)
                 }
             }
         }
+    }
+
+
+    fun switchThemeState(checked: Boolean) {
+        viewModelScope.launch {
+            localRepository.saveThemeToDataStore(themeDark = checked)
+        }
+        _uiState.update {
+            it.copy(
+                themeDark = checked
+            )
+        }
+    }
+
+    fun switchLang(language: String) {
+        viewModelScope.launch {
+            localRepository.saveLanguageToDataStore(language = language)
+        }
+        val layoutDirection = LayoutDirection.Ltr.takeIf {  language == "en" } ?: LayoutDirection.Rtl
+        _uiState.update {
+            it.copy(
+                language = language,
+                layoutDirection = layoutDirection
+            )
+        }
+    }
+
+    fun logout() {
+
     }
 
 //    private fun handleInternetConnectionState() {
@@ -161,6 +217,13 @@ data class ProductsUiState(
 data class ProductUiState(
     val product: Product = Product(),
     val isFavorite: Boolean = false
+)
+
+data class UiState(
+    val themeDark: Boolean = false,
+    val language: String = "en",
+    val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    val loggedIn: Boolean = false
 )
 
 enum class Status {

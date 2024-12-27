@@ -4,18 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +25,7 @@ import coil3.imageLoader
 import com.example.ibitest.navigation.BottomNavigation
 import com.example.ibitest.navigation.NavigationGraph
 import com.example.ibitest.ui.theme.IbiTestTheme
+import com.example.ibitest.utils.Utils.updateDeviceLocale
 import com.example.ibitest.viewmodel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,30 +36,41 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            IbiTestTheme {
-                val navController = rememberNavController()
-                val productsViewModel: ProductsViewModel = viewModel()
+            val productsViewModel: ProductsViewModel = viewModel()
+            val navController = rememberNavController()
+            val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
+            val context = LocalContext.current
 
-                Scaffold(modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        BottomNavigation(navController = navController)
-                    },
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("IBI products") }
-                        )
-                    }) { innerPadding ->
-                    NavigationGraph(
-                        innerPadding = innerPadding,
-                        navController = navController,
-                        productsViewModel = productsViewModel
-                    )
-                }
+            updateDeviceLocale(context, uiState.language)
 
-                val clearImageCacheState by productsViewModel.clearCache.collectAsStateWithLifecycle()
-                if (clearImageCacheState) {
-                    imageLoader.diskCache?.clear()
-                }
+            CompositionLocalProvider(
+                LocalLayoutDirection provides uiState.layoutDirection
+            ) {
+                IbiTestTheme (
+                    darkTheme = uiState.themeDark,
+                    content = {
+                        Scaffold(modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                BottomNavigation(navController = navController)
+                            },
+                            topBar = {
+                                TopAppBar(
+                                    title = { Text(stringResource(R.string.app_name)) }
+                                )
+                            }) { innerPadding ->
+                            NavigationGraph(
+                                innerPadding = innerPadding,
+                                navController = navController,
+                                productsViewModel = productsViewModel
+                            )
+                        }
+
+                        val clearImageCacheState by productsViewModel.clearCache.collectAsStateWithLifecycle()
+                        if (clearImageCacheState) {
+                            imageLoader.diskCache?.clear()
+                        }
+                    }
+                )
             }
         }
     }

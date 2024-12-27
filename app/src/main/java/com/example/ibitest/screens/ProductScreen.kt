@@ -26,12 +26,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ibitest.R
 import com.example.ibitest.components.VerticallyScrollableText
 
 @Composable
@@ -65,14 +67,14 @@ fun ProductScreen(
             Column {
                 Text(text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Brand: ")
+                        append(stringResource(R.string.brand_label))
                     }
                     append(productUiState.product.brand)
                 })
 
                 Text(modifier = Modifier.padding(top = 6.dp), text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("Price: ")
+                        append(stringResource(R.string.price_label))
                     }
                     append(productUiState.product.price)
                 })

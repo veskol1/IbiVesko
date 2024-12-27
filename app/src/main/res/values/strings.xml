@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">IbiTest</string>
+    <string name="app_name">IBI App</string>
+    <string name="language_english">English</string>
+    <string name="language_label">Select Language</string>
+    <string name="language_hebrew">Hebrew</string>
+    <string name="theme_label">Dark Theme</string>
+    <string name="brand_label">"Brand: "</string>
+    <string name="price_label">"Price: "</string>
+    <string name="products_label">Products</string>
+    <string name="favorites_label">Favorites</string>
+    <string name="settings_label">Settings</string>
+    <string name="logout_label">Logout</string>
 </resources>
