@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.ibitest.components.BiometricPromptManager
 import com.example.ibitest.viewmodel.FavoritesViewModel
 import com.example.ibitest.viewmodel.ProductsViewModel
 import com.example.ibitest.screens.FavoritesScreen
@@ -24,7 +25,8 @@ fun NavigationGraph(
     innerPadding: PaddingValues,
     navController: NavHostController,
     productsViewModel: ProductsViewModel = viewModel(),
-    favoritesViewModel: FavoritesViewModel = viewModel()
+    favoritesViewModel: FavoritesViewModel = viewModel(),
+    promptManager: BiometricPromptManager
 ) {
     val uiState by productsViewModel.uiState.collectAsState()
     val baseModifier = Modifier.padding(
@@ -45,7 +47,8 @@ fun NavigationGraph(
                     navController.navigate(BottomBar.Products.route) {
                         popUpTo("login") { inclusive = true }
                     }
-                }
+                },
+                promptManager = promptManager
             )
         }
 

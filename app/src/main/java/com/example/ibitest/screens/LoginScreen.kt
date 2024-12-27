@@ -1,5 +1,12 @@
 package com.example.ibitest.screens
 
+import android.content.Intent
+import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
@@ -16,12 +23,44 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.ibitest.R
+import com.example.ibitest.components.BiometricPromptManager.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ibitest.components.BiometricPromptManager
+
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onSuccessfulLogin: () -> Unit = {  },
+    promptManager: BiometricPromptManager
     ) {
+
+    val biometricResult by promptManager.promptResults.collectAsStateWithLifecycle(initialValue = null)
+
+    val enrollLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {
+            println("Activity result: $it")
+        }
+    )
+
+    LaunchedEffect(biometricResult) {
+        if(biometricResult is BiometricResult.AuthenticationNotSet) {
+            if(Build.VERSION.SDK_INT >= 30) {
+                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                    putExtra(
+                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+                    )
+                }
+                enrollLauncher.launch(enrollIntent)
+            }
+        }
+    }
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -59,6 +98,7 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
             if (username == "1" && password == "1") {
                 onSuccessfulLogin()
@@ -66,13 +106,28 @@ fun LoginScreen(
         }) {
             Text(text = stringResource(R.string.login_label))
         }
+
+        Button(onClick = {
+            promptManager.showBiometricPrompt(
+                title = "Login",
+                description = ""
+            )
+        }) {
+            Text(text = stringResource(R.string.login_with_biometric_label))
+        }
+
+        LaunchedEffect(key1 = biometricResult) {
+            biometricResult?.let { result ->
+                if (result is BiometricResult.AuthenticationSuccess) {
+                    onSuccessfulLogin()
+                }
+            }
+        }
     }
-
-
 }
 
 @Composable
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 fun LoginScreenPreview() {
-    LoginScreen()
+    //LoginScreen()
 }

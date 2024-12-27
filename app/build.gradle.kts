@@ -88,5 +88,6 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     implementation (libs.lottie)
+    implementation (libs.androidx.biometric)
 
 }

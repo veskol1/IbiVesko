@@ -1,9 +1,10 @@
 package com.example.ibitest
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -21,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import coil3.imageLoader
+import com.example.ibitest.components.BiometricPromptManager
 import com.example.ibitest.navigation.BottomNavigation
 import com.example.ibitest.navigation.NavigationGraph
 import com.example.ibitest.ui.theme.IbiTestTheme
@@ -28,8 +30,13 @@ import com.example.ibitest.utils.Utils.updateDeviceLocale
 import com.example.ibitest.viewmodel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+    private val promptManager by lazy {
+        BiometricPromptManager(this)
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +68,8 @@ class MainActivity : ComponentActivity() {
                                 NavigationGraph(
                                     innerPadding = innerPadding,
                                     navController = navController,
-                                    productsViewModel = productsViewModel
+                                    productsViewModel = productsViewModel,
+                                    promptManager = promptManager
                                 )
                             }
 
