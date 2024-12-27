@@ -10,4 +10,7 @@
     <string name="favorites_label">Favorites</string>
     <string name="settings_label">Settings</string>
     <string name="logout_label">Logout</string>
+    <string name="login_label">Login</string>
+    <string name="password_label">Password</string>
+    <string name="username_label">Username</string>
 </resources>

@@ -18,7 +18,6 @@ fun LazyColumnList(
     modifier: Modifier = Modifier,
     productsList: List<Product>,
     navigateOnProductClick: (String) -> Unit,
-    bottomBarVisible: (Boolean) -> Unit,
     loadMoreItems: () -> Unit = {},
     loadingProgressIndicator:  @Composable () -> Unit,
     isLoadingMore: Boolean = false,
@@ -35,7 +34,6 @@ fun LazyColumnList(
         ) { index, product: Product ->
             ProductItem(
                 product = product,
-                bottomBarVisible = bottomBarVisible,
                 navigateOnProductClick = { productId -> navigateOnProductClick(productId) },
                 isLastItem = index == productsList.size - 1 && !hideLastItemSpace
             )

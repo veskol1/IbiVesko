@@ -23,7 +23,6 @@ import com.example.ibitest.viewmodel.Status
 fun ProductsScreen(
     modifier: Modifier = Modifier,
     productsViewModel: ProductsViewModel = viewModel(),
-    bottomBarVisible: (Boolean) -> Unit,
     navigateOnProductClick: (productId: String) -> Unit = {}
 ) {
     val uiState by productsViewModel.productsState.collectAsStateWithLifecycle()
@@ -38,7 +37,6 @@ fun ProductsScreen(
                         navigateOnProductClick = { productId ->
                             navigateOnProductClick(productId)
                         },
-                        bottomBarVisible = bottomBarVisible,
                         loadMoreItems = {
                             productsViewModel.loadMoreProducts()
                         },
@@ -83,7 +81,6 @@ fun ProductsScreenPreview() {
                 ),
                 productsList = mockDealsList,
                 navigateOnProductClick = {},
-                bottomBarVisible = { true },
                 loadMoreItems = {},
                 loadingProgressIndicator = {},
                 isLoadingMore = false,

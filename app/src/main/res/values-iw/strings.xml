@@ -10,5 +10,8 @@
     <string name="favorites_label">מועדפים</string>
     <string name="settings_label">הגדרות</string>
     <string name="logout_label">התקנתקות</string>
+    <string name="login_label">התחברות</string>
+    <string name="password_label">סיסמא</string>
+    <string name="username_label">שם משתמש</string>
 
 </resources>

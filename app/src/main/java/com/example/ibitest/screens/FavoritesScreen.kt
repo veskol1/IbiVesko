@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-
 import com.example.ibitest.model.Product
 import com.example.ibitest.viewmodel.FavoritesViewModel
 import kotlinx.coroutines.delay

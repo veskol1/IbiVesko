@@ -23,6 +23,7 @@ import com.example.ibitest.viewmodel.ProductsViewModel
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     productsViewModel: ProductsViewModel = viewModel(),
+    onLogout: () -> Unit = {}
 ) {
     val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -32,10 +33,17 @@ fun SettingsScreen(
         })
 
         LanguageSwitcher(selectedLanguage = uiState.language, onLanguageChange = {
-            productsViewModel.switchLang(language = it)
+            productsViewModel.switchLanguageState(language = it)
         })
 
-        Button(modifier = Modifier.padding(horizontal = 100.dp, vertical = 60.dp).fillMaxWidth(), onClick = { productsViewModel.logout()}) {
+        Button(
+            modifier = Modifier
+                .padding(horizontal = 100.dp, vertical = 60.dp)
+                .fillMaxWidth(),
+            onClick = {
+                onLogout()
+                productsViewModel.updateLoggedInState(loggedIn = false)
+            }) {
             Text(text = stringResource(id = R.string.logout_label))
         }
     }

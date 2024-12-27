@@ -35,7 +35,6 @@ import com.example.ibitest.utils.mockDealsList
 @Composable
 fun ProductItem(
     product: Product,
-    bottomBarVisible: (Boolean) -> Unit,
     navigateOnProductClick: (String) -> Unit,
     isLastItem: Boolean = false
 ) {
@@ -46,7 +45,6 @@ fun ProductItem(
             .height(140.dp)
             .padding(vertical = 10.dp)
             .clickable {
-                bottomBarVisible(false)
                 navigateOnProductClick(product.id)
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -119,8 +117,6 @@ fun ProductItemPreview() {
     ProductItem(
         product = mockDealsList[0],
         navigateOnProductClick = {},
-        bottomBarVisible = {},
-
     )
 }
 

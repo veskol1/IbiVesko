@@ -12,9 +12,12 @@ import com.example.ibitest.constans.Constants.TIME_TO_CLEAR_IMAGE_CACHE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 
@@ -40,6 +43,16 @@ class ProductsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     var uiState = _uiState.asStateFlow()
 
+    private val loggedInFlow = localRepository.getLoginStatusFromDataStore.shareIn(
+        viewModelScope, SharingStarted.Lazily, replay = 1
+    )
+    private val themeFlow = localRepository.getThemeFromDataStore.shareIn(
+        viewModelScope, SharingStarted.Lazily, replay = 1
+    )
+    private val languageFlow = localRepository.getLanguageFromDataStore.shareIn(
+        viewModelScope, SharingStarted.Lazily, replay = 1
+    )
+
     init {
         initUi()
         getRemoteProducts()
@@ -49,22 +62,17 @@ class ProductsViewModel @Inject constructor(
 
     private fun initUi() {
         viewModelScope.launch {
-            localRepository.getThemeFromDataStore.take(1).collect { themeDark ->
-                _uiState.update {
-                    it.copy(
-                        themeDark = themeDark
-                    )
-                }
-            }
-
-            localRepository.getLanguageFromDataStore.take(1).collect { language ->
-                val layoutDirection = LayoutDirection.Ltr.takeIf {  language == "en" } ?: LayoutDirection.Rtl
-                _uiState.update {
-                    it.copy(
-                        language = language,
-                        layoutDirection = layoutDirection
-                    )
-                }
+            combine(loggedInFlow, themeFlow, languageFlow) { loggedIn, themeDark, language ->
+                val layoutDirection = LayoutDirection.Ltr.takeIf { language == "en" } ?: LayoutDirection.Rtl
+                UiState(
+                    loggedIn = loggedIn,
+                    themeDark = themeDark,
+                    language = language,
+                    layoutDirection = layoutDirection,
+                    initFinished = true
+                )
+            }.collect { updatedUiState ->
+                _uiState.value = updatedUiState
             }
         }
     }
@@ -173,7 +181,7 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    fun switchLang(language: String) {
+    fun switchLanguageState(language: String) {
         viewModelScope.launch {
             localRepository.saveLanguageToDataStore(language = language)
         }
@@ -186,8 +194,16 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    fun logout() {
+    fun updateLoggedInState(loggedIn: Boolean = false) {
 
+        viewModelScope.launch {
+            localRepository.saveLoginStatusToDataStore(status = loggedIn)
+        }
+        _uiState.update {
+            it.copy(
+                loggedIn = loggedIn,
+            )
+        }
     }
 
     private fun handleInternetConnectionState() {
@@ -233,7 +249,8 @@ data class UiState(
     val themeDark: Boolean = false,
     val language: String = "en",
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    val loggedIn: Boolean = false
+    val loggedIn: Boolean = true,
+    val initFinished: Boolean = false
 )
 
 enum class Status {

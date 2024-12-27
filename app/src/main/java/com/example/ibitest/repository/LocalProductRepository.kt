@@ -16,6 +16,7 @@ class LocalProductRepository @Inject constructor(private val productDao: Product
     private val CACHE_TIME_KEY = longPreferencesKey("cache_image_time_key")
     private val THEME_DARK_KEY = booleanPreferencesKey("theme_dark_key")
     private val LANGUAGE_KEY = stringPreferencesKey("language_key")
+    private val LOGIN_STATUS_KEY = booleanPreferencesKey("login_status_key")
 
 
     fun checkIfProductIsFavorite(product: Product): Boolean {
@@ -66,4 +67,16 @@ class LocalProductRepository @Inject constructor(private val productDao: Product
     val getLanguageFromDataStore: Flow<String> = dataStore.data.map { preferences ->
         preferences[LANGUAGE_KEY] ?: "en"
     }
+
+    suspend fun saveLoginStatusToDataStore(status: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[LOGIN_STATUS_KEY] = status
+        }
+    }
+
+    // Read data from DataStore
+    val getLoginStatusFromDataStore: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[LOGIN_STATUS_KEY] ?: false
+    }
+
 }

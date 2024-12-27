@@ -1,11 +1,5 @@
 package com.example.ibitest.components
 
-import android.app.Activity
-import android.app.LocaleManager
-import android.content.Context
-import android.content.res.Configuration
-import android.os.Build
-import android.os.LocaleList
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.ibitest.R
 import com.example.ibitest.utils.Utils.updateDeviceLocale
-import java.util.Locale
 
 @Composable
 fun LanguageSwitcher(selectedLanguage: String, onLanguageChange: (String) -> Unit) {

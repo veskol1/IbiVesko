@@ -1,6 +1,5 @@
 package com.example.ibitest.utils
 
-import com.example.ibitest.components.ProductItem
 import com.example.ibitest.model.Product
 
 val mockDealsList = arrayListOf(

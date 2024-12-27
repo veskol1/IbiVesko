@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,39 +38,42 @@ class MainActivity : ComponentActivity() {
             val productsViewModel: ProductsViewModel = viewModel()
             val navController = rememberNavController()
             val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
-            val context = LocalContext.current
 
-            updateDeviceLocale(context, uiState.language)
-
-            CompositionLocalProvider(
-                LocalLayoutDirection provides uiState.layoutDirection
-            ) {
-                IbiTestTheme (
-                    darkTheme = uiState.themeDark,
-                    content = {
-                        Scaffold(modifier = Modifier.fillMaxSize(),
-                            bottomBar = {
-                                BottomNavigation(navController = navController)
-                            },
-                            topBar = {
-                                TopAppBar(
-                                    title = { Text(stringResource(R.string.app_name)) }
+            if (uiState.initFinished) {
+                updateDeviceLocale(context = LocalContext.current, selectedLanguage = uiState.language)
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides uiState.layoutDirection
+                ) {
+                    IbiTestTheme (
+                        darkTheme = uiState.themeDark,
+                        content = {
+                            Scaffold(modifier = Modifier.fillMaxSize(),
+                                bottomBar = {
+                                    if(uiState.loggedIn) {
+                                        BottomNavigation(navController = navController)
+                                    }
+                                },
+                                topBar = {
+                                    TopAppBar(
+                                        title = { Text(stringResource(R.string.app_name)) }
+                                    )
+                                }) { innerPadding ->
+                                NavigationGraph(
+                                    innerPadding = innerPadding,
+                                    navController = navController,
+                                    productsViewModel = productsViewModel
                                 )
-                            }) { innerPadding ->
-                            NavigationGraph(
-                                innerPadding = innerPadding,
-                                navController = navController,
-                                productsViewModel = productsViewModel
-                            )
-                        }
+                            }
 
-                        val clearImageCacheState by productsViewModel.clearCache.collectAsStateWithLifecycle()
-                        if (clearImageCacheState) {
-                            imageLoader.diskCache?.clear()
+                            val clearImageCacheState by productsViewModel.clearCache.collectAsStateWithLifecycle()
+                            if (clearImageCacheState) {
+                                imageLoader.diskCache?.clear()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
+
         }
     }
 }
