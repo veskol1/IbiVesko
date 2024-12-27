@@ -20,6 +20,7 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import com.example.ibitest.connectivity.NetworkConnectivityManager
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -69,11 +70,11 @@ object AppModule {
         return PreferenceDataStoreFactory.create (produceFile = { appContext.preferencesDataStoreFile(name = "settings_preferences") })
     }
 
-//    @Provides
-//    @Singleton
-//    fun provideConnectivity(@ApplicationContext appContext: Context): NetworkConnectivityManager {
-//        return NetworkConnectivityManager(appContext)
-//    }
+    @Provides
+    @Singleton
+    fun provideConnectivity(@ApplicationContext appContext: Context): NetworkConnectivityManager {
+        return NetworkConnectivityManager(appContext)
+    }
 
 
 }

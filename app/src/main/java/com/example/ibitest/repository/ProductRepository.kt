@@ -8,10 +8,8 @@ import javax.inject.Inject
 class ProductRepository @Inject constructor(private val api: ApiService) {
     private var productsList: MutableList<Product> = arrayListOf()
 
-    suspend fun fetchProducts(limit: Int = 20, skip: Int = 0, resetData: Boolean = false): List<Product> {
-        if (resetData) {
-            productsList.clear()
-        }
+    suspend fun fetchProducts(limit: Int = 20, skip: Int = 0): List<Product> {
+
         try {
             val response = api.getProducts(limit = limit, skip = skip)
 

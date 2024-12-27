@@ -3,6 +3,8 @@ package com.example.ibitest.viewmodel
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibitest.connectivity.ConnectivityObserver
+import com.example.ibitest.connectivity.NetworkConnectivityManager
 import com.example.ibitest.model.Product
 import com.example.ibitest.repository.LocalProductRepository
 import com.example.ibitest.repository.ProductRepository
@@ -11,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 
@@ -21,14 +25,14 @@ import javax.inject.Inject
 class ProductsViewModel @Inject constructor(
     private val remoteProductsRepository: ProductRepository,
     private val localRepository: LocalProductRepository,
-    //private val connectivityManager: NetworkConnectivityManager
+    private val connectivityManager: NetworkConnectivityManager
 ) : ViewModel() {
 
     private val _productsState = MutableStateFlow(ProductsUiState())
     var productsState = _productsState.asStateFlow()
 
-    private val _productUiState = MutableStateFlow(ProductUiState())
-    var productUiState = _productUiState.asStateFlow()
+    private val _productState = MutableStateFlow(ProductUiState())
+    var productState = _productState.asStateFlow()
 
     private val _clearCache = MutableStateFlow(false)
     var clearCache = _clearCache.asStateFlow()
@@ -40,7 +44,7 @@ class ProductsViewModel @Inject constructor(
         initUi()
         getRemoteProducts()
         checkIfNeedToClearImageCache()
-        //handleInternetConnectionState()
+        handleInternetConnectionState()
     }
 
     private fun initUi() {
@@ -65,9 +69,9 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun getRemoteProducts(resetData: Boolean = false) {
+    private fun getRemoteProducts() {
         viewModelScope.launch(Dispatchers.IO) {
-            val productsList = remoteProductsRepository.fetchProducts(resetData = resetData)
+            val productsList = remoteProductsRepository.fetchProducts()
 
             if (productsList.isNotEmpty()) {
                 _productsState.update {
@@ -108,7 +112,7 @@ class ProductsViewModel @Inject constructor(
     fun initProductScreenUi(productId: String) {
         val foundProduct = productsState.value.productsList.find { it.id == productId }!!
         viewModelScope.launch(Dispatchers.IO) {
-            _productUiState.update {
+            _productState.update {
                 it.copy(
                     product = foundProduct,
                     isFavorite = localRepository.checkIfProductIsFavorite(foundProduct)
@@ -118,17 +122,17 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun handleFavoriteClicked() {
-        val product = productUiState.value.product
+        val product = productState.value.product
         viewModelScope.launch(Dispatchers.IO) {
-            if (productUiState.value.isFavorite) {
+            if (productState.value.isFavorite) {
                 localRepository.deleteProductFromDb(product)
             } else {
                 localRepository.insertProductToDb(product)
             }
 
-            _productUiState.update {
+            _productState.update {
                 it.copy(
-                    isFavorite = !productUiState.value.isFavorite
+                    isFavorite = !productState.value.isFavorite
                 )
             }
         }
@@ -180,31 +184,31 @@ class ProductsViewModel @Inject constructor(
 
     }
 
-//    private fun handleInternetConnectionState() {
-//        connectivityManager.observe().onEach { status ->
-//            when (status) {
-//                ConnectivityObserver.Status.Available -> {
-//                    if (uiState.value.procutsList.isEmpty()) {
-//                        getRemoteMovies()
-//                    } else {
-//                        _uiState.update {
-//                            it.copy(
-//                                status = Status.SUCCESS
-//                            )
-//                        }
-//                    }
-//                }
-//                ConnectivityObserver.Status.Lost -> {
-//                    _uiState.update {
-//                        it.copy(
-//                            status = Status.NO_CONNECTION
-//                        )
-//                    }
-//                }
-//                else -> {}
-//            }
-//        }.launchIn(viewModelScope)
-//    }
+    private fun handleInternetConnectionState() {
+        connectivityManager.observe().onEach { status ->
+            when (status) {
+                ConnectivityObserver.Status.Available -> {
+                    if (productsState.value.productsList.isEmpty()) {
+                        getRemoteProducts()
+                    } else {
+                        _productsState.update {
+                            it.copy(
+                                status = Status.SUCCESS
+                            )
+                        }
+                    }
+                }
+                ConnectivityObserver.Status.Lost -> {
+                    _productsState.update {
+                        it.copy(
+                            status = Status.NO_CONNECTION
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }.launchIn(viewModelScope)
+    }
 }
 
 data class ProductsUiState(

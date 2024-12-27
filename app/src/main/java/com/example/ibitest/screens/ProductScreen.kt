@@ -42,7 +42,7 @@ fun ProductScreen(
     productsViewModel: ProductsViewModel = viewModel(),
     onFavoriteProductClicked: () -> Unit = {  }
 ) {
-    val productUiState by productsViewModel.productUiState.collectAsStateWithLifecycle()
+    val productUiState by productsViewModel.productState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
         AsyncImage(
