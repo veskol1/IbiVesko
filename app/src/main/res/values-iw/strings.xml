@@ -14,5 +14,7 @@
     <string name="password_label">סיסמא</string>
     <string name="username_label">שם משתמש</string>
     <string name="login_with_biometric_label">טביעת אצבע</string>
+    <string name="product_added_to_favorites">המוצר נוסף למועדפים</string>
+    <string name="product_removed_from_favorites">המוצר הוסר מהמועדפים</string>
 
 </resources>

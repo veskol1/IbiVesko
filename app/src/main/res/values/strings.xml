@@ -14,4 +14,6 @@
     <string name="password_label">Password</string>
     <string name="username_label">Username</string>
     <string name="login_with_biometric_label">Biometric Login</string>
+    <string name="product_added_to_favorites">Product added to Favorites</string>
+    <string name="product_removed_from_favorites">Product removed from Favorites</string>
 </resources>
