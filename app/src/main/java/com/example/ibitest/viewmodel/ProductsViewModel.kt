@@ -40,8 +40,8 @@ class ProductsViewModel @Inject constructor(
     private val _clearCache = MutableStateFlow(false)
     var clearCache = _clearCache.asStateFlow()
 
-    private val _uiState = MutableStateFlow(UiState())
-    var uiState = _uiState.asStateFlow()
+    private val _appState = MutableStateFlow(AppState())
+    var appState = _appState.asStateFlow()
 
     private val loggedInFlow = localRepository.getLoginStatusFromDataStore.shareIn(
         viewModelScope, SharingStarted.Lazily, replay = 1
@@ -55,7 +55,6 @@ class ProductsViewModel @Inject constructor(
 
     init {
         initUi()
-        getRemoteProducts()
         checkIfNeedToClearImageCache()
         handleInternetConnectionState()
     }
@@ -64,7 +63,7 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(loggedInFlow, themeFlow, languageFlow) { loggedIn, themeDark, language ->
                 val layoutDirection = LayoutDirection.Ltr.takeIf { language == "en" } ?: LayoutDirection.Rtl
-                UiState(
+                AppState(
                     loggedIn = loggedIn,
                     themeDark = themeDark,
                     language = language,
@@ -72,12 +71,12 @@ class ProductsViewModel @Inject constructor(
                     initFinished = true
                 )
             }.collect { updatedUiState ->
-                _uiState.value = updatedUiState
+                _appState.value = updatedUiState
             }
         }
     }
 
-    private fun getRemoteProducts() {
+    fun getRemoteProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             val productsList = remoteProductsRepository.fetchProducts()
 
@@ -119,12 +118,8 @@ class ProductsViewModel @Inject constructor(
 
     fun initProductScreenUi(productId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val foundProduct = if (productsState.value.productsList.isNotEmpty()) {
-                productsState.value.productsList.find { it.id == productId }!!
-            } else {
-                val favoriteProducts = localRepository.gelAllFavoriteProducts()
-                favoriteProducts.find { it.id == productId }!!
-            }
+            val favoriteProducts = localRepository.gelAllFavoriteProducts()
+            val foundProduct = favoriteProducts.find { it.id == productId }!!
 
             _productState.update {
                 it.copy(
@@ -174,7 +169,7 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             localRepository.saveThemeToDataStore(themeDark = checked)
         }
-        _uiState.update {
+        _appState.update {
             it.copy(
                 themeDark = checked
             )
@@ -186,7 +181,7 @@ class ProductsViewModel @Inject constructor(
             localRepository.saveLanguageToDataStore(language = language)
         }
         val layoutDirection = LayoutDirection.Ltr.takeIf {  language == "en" } ?: LayoutDirection.Rtl
-        _uiState.update {
+        _appState.update {
             it.copy(
                 language = language,
                 layoutDirection = layoutDirection
@@ -199,7 +194,7 @@ class ProductsViewModel @Inject constructor(
         viewModelScope.launch {
             localRepository.saveLoginStatusToDataStore(status = loggedIn)
         }
-        _uiState.update {
+        _appState.update {
             it.copy(
                 loggedIn = loggedIn,
             )
@@ -245,7 +240,7 @@ data class ProductUiState(
     val isFavorite: Boolean = false
 )
 
-data class UiState(
+data class AppState(
     val themeDark: Boolean = false,
     val language: String = "en",
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,

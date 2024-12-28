@@ -1,7 +1,6 @@
 package com.example.ibitest
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -44,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val productsViewModel: ProductsViewModel = viewModel()
             val navController = rememberNavController()
-            val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
+            val uiState by productsViewModel.appState.collectAsStateWithLifecycle()
 
             if (uiState.initFinished) {
                 updateDeviceLocale(context = LocalContext.current, selectedLanguage = uiState.language)

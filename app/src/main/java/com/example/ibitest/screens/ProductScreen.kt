@@ -5,12 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.example.ibitest.viewmodel.ProductsViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,30 +27,33 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibitest.R
 import com.example.ibitest.components.VerticallyScrollableText
+import com.example.ibitest.model.Product
+import com.example.ibitest.utils.mockDealsList
 
 @Composable
 fun ProductScreen(
     modifier: Modifier = Modifier,
-    productsViewModel: ProductsViewModel = viewModel(),
+    product: Product,
+    isFavorite: Boolean,
     onFavoriteProductClicked: () -> Unit = {  }
 ) {
-    val productUiState by productsViewModel.productState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
         AsyncImage(
-            modifier = Modifier.height(450.dp),
-            model = productUiState.product.image,
+            modifier = Modifier.height(300.dp),
+            model = product.image,
             contentScale = ContentScale.FillWidth,
             contentDescription = null,
         )
 
         Text(
             modifier = Modifier.padding(20.dp),
-            text = productUiState.product.title,
+            text = product.title,
             fontWeight = FontWeight.Bold,
             fontSize = 26.sp,
             maxLines = 3
@@ -69,20 +68,20 @@ fun ProductScreen(
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(stringResource(R.string.brand_label))
                     }
-                    append(productUiState.product.brand)
+                    append(product.brand)
                 })
 
                 Text(modifier = Modifier.padding(top = 6.dp), text = buildAnnotatedString {
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(stringResource(R.string.price_label))
                     }
-                    append(productUiState.product.price)
+                    append(product.price)
                 })
             }
 
             Spacer(modifier = Modifier.weight(1f))
             Icon(
-                imageVector = Icons.Outlined.Favorite.takeIf { productUiState.isFavorite } ?: Icons.Outlined.FavoriteBorder,
+                imageVector = Icons.Outlined.Favorite.takeIf { isFavorite } ?: Icons.Outlined.FavoriteBorder,
                 tint = Color.Red,
                 contentDescription = "Image Favorite",
                 modifier = Modifier
@@ -93,10 +92,20 @@ fun ProductScreen(
             )
         }
         VerticallyScrollableText(
-            productUiState.product.description, modifier = Modifier
+            product.description, modifier = Modifier
                 .height(200.dp)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState())
         )
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun ProductScreenPreview() {
+    ProductScreen(
+        product = mockDealsList[0],
+        isFavorite = true
+    )
 }

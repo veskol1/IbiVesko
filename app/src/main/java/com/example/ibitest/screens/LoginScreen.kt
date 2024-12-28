@@ -5,6 +5,7 @@ import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STR
 import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ibitest.components.BiometricPromptManager
 
@@ -38,7 +40,7 @@ fun LoginScreen(
     onSuccessfulLogin: () -> Unit = {  },
     promptManager: BiometricPromptManager
     ) {
-
+    val context = LocalContext.current
     val biometricResult by promptManager.promptResults.collectAsStateWithLifecycle(initialValue = null)
 
     val enrollLauncher = rememberLauncherForActivityResult(
@@ -102,14 +104,16 @@ fun LoginScreen(
         Button(onClick = {
             if (username == "vesko" && password == "12345") {
                 onSuccessfulLogin()
+            } else {
+                Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
             }
         }) {
             Text(text = stringResource(R.string.login_label))
         }
 
-        Button(onClick = {
+        Button(modifier = Modifier.padding(top = 32.dp), onClick = {
             promptManager.showBiometricPrompt(
-                title = "Login",
+                title = "Biometric Login",
                 description = ""
             )
         }) {

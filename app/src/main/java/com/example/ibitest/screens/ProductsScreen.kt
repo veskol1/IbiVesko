@@ -3,45 +3,38 @@ package com.example.ibitest.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ibitest.components.LazyColumnList
 import com.example.ibitest.components.ProgressIndicator
 import com.example.ibitest.utils.mockDealsList
-import com.example.ibitest.viewmodel.ProductsViewModel
+import com.example.ibitest.viewmodel.ProductsUiState
 import com.example.ibitest.viewmodel.Status
 
 @Composable
 fun ProductsScreen(
     modifier: Modifier = Modifier,
-    productsViewModel: ProductsViewModel = viewModel(),
-    navigateOnProductClick: (productId: String) -> Unit = {}
+    productsUiState: ProductsUiState,
+    navigateOnProductClick: (productId: String) -> Unit = {},
+    loadMoreProducts: () -> Unit
 ) {
-    val uiState by productsViewModel.productsState.collectAsStateWithLifecycle()
 
-    when (uiState.status) {
+    when (productsUiState.status) {
         Status.SUCCESS -> {
             Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
                 Box {
                     LazyColumnList(
                         modifier = Modifier,
-                        productsList = uiState.productsList,
+                        productsList = productsUiState.productsList,
                         navigateOnProductClick = { productId ->
                             navigateOnProductClick(productId)
                         },
-                        loadMoreItems = {
-                            productsViewModel.loadMoreProducts()
-                        },
+                        loadMoreItems = { loadMoreProducts() },
                         loadingProgressIndicator = { ProgressIndicator(alignment = Alignment.BottomCenter) },
-                        isLoadingMore = uiState.isLoadingMore
+                        isLoadingMore = productsUiState.isLoadingMore
                     )
                 }
             }
@@ -66,28 +59,15 @@ fun ProductsScreen(
 }
 
 
-
 @Composable
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 fun ProductsScreenPreview() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box {
-            LazyColumnList(
-                modifier = Modifier.padding(
-                    top = 40.dp,
-                    bottom = 200.dp,
-                    start = 16.dp,
-                    end = 16.dp
-                ),
-                productsList = mockDealsList,
-                navigateOnProductClick = {},
-                loadMoreItems = {},
-                loadingProgressIndicator = {},
-                isLoadingMore = false,
-                hideLastItemSpace = false,
-            )
-        }
-    }
-
-
+    ProductsScreen(
+        productsUiState = ProductsUiState(
+            status = Status.SUCCESS,
+            productsList = mockDealsList
+        ),
+        navigateOnProductClick = {},
+        loadMoreProducts = {}
+    )
 }

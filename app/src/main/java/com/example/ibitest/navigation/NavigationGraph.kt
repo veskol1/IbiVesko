@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,7 +29,7 @@ fun NavigationGraph(
     favoritesViewModel: FavoritesViewModel = viewModel(),
     promptManager: BiometricPromptManager
 ) {
-    val uiState by productsViewModel.uiState.collectAsState()
+    val appState by productsViewModel.appState.collectAsState()
     val baseModifier = Modifier.padding(
         top = innerPadding.calculateTopPadding(),
         bottom = innerPadding.calculateBottomPadding(),
@@ -37,7 +38,7 @@ fun NavigationGraph(
     )
     NavHost(
         navController,
-        startDestination = if (uiState.loggedIn) BottomBar.Products.route else "login",
+        startDestination = if (appState.loggedIn) BottomBar.Products.route else "login",
     ) {
         composable(route = "login") {
             LoginScreen(
@@ -53,13 +54,18 @@ fun NavigationGraph(
         }
 
         composable(route = BottomBar.Products.route) {
+            productsViewModel.getRemoteProducts()
+            val productsUiState by productsViewModel.productsState.collectAsStateWithLifecycle()
             ProductsScreen(
                 modifier = baseModifier,
-                productsViewModel = productsViewModel,
+                productsUiState = productsUiState,
                 navigateOnProductClick = { productId ->
                     productsViewModel.initProductScreenUi(productId)
                     navController.navigate("product")
                 },
+                loadMoreProducts = {
+                    productsViewModel.loadMoreProducts()
+                }
             )
         }
 
@@ -79,6 +85,8 @@ fun NavigationGraph(
         }
 
         composable(route = "product") {
+            val productUiState by productsViewModel.productState.collectAsStateWithLifecycle()
+
             ProductScreen(
                 modifier = Modifier.padding(
                     top = innerPadding.calculateTopPadding(),
@@ -86,7 +94,8 @@ fun NavigationGraph(
                     start = 24.dp,
                     end = 24.dp
                 ),
-                productsViewModel = productsViewModel,
+                product = productUiState.product,
+                isFavorite = productUiState.isFavorite,
                 onFavoriteProductClicked = { productsViewModel.handleFavoriteClicked() })
         }
 

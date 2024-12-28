@@ -1,6 +1,7 @@
 package com.example.ibitest.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,20 +26,22 @@ fun SettingsScreen(
     productsViewModel: ProductsViewModel = viewModel(),
     onLogout: () -> Unit = {}
 ) {
-    val uiState by productsViewModel.uiState.collectAsStateWithLifecycle()
+    val appState by productsViewModel.appState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize()) {
-        AppThemeSwitch(isDarkTheme = uiState.themeDark, onThemeChange = {
+        AppThemeSwitch(isDarkTheme = appState.themeDark, onThemeChange = {
             productsViewModel.switchThemeState(checked = it)
         })
 
-        LanguageSwitcher(selectedLanguage = uiState.language, onLanguageChange = {
+        LanguageSwitcher(selectedLanguage = appState.language, onLanguageChange = {
             productsViewModel.switchLanguageState(language = it)
         })
 
+        Spacer(modifier = Modifier.weight(1f))
+
         Button(
             modifier = Modifier
-                .padding(horizontal = 100.dp, vertical = 60.dp)
+                .padding(horizontal = 20.dp, vertical = 30.dp)
                 .fillMaxWidth(),
             onClick = {
                 onLogout()
