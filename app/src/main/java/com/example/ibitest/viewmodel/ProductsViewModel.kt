@@ -118,14 +118,20 @@ class ProductsViewModel @Inject constructor(
 
     fun initProductScreenUi(productId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val favoriteProducts = localRepository.gelAllFavoriteProducts()
-            val foundProduct = favoriteProducts.find { it.id == productId }!!
+            val foundProduct = if (productsState.value.productsList.isNotEmpty()) {
+                productsState.value.productsList.find { it.id == productId }
+            } else {
+                val favoriteProducts = localRepository.gelAllFavoriteProducts()
+                favoriteProducts.find { it.id == productId }
+            }
 
-            _productState.update {
-                it.copy(
-                    product = foundProduct,
-                    isFavorite = localRepository.checkIfProductIsFavorite(foundProduct)
-                )
+            foundProduct?.let {
+                _productState.update {
+                    it.copy(
+                        product = foundProduct,
+                        isFavorite = localRepository.checkIfProductIsFavorite(foundProduct)
+                    )
+                }
             }
         }
     }
